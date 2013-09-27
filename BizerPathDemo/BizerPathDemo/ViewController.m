@@ -265,10 +265,22 @@
         if (isDrawFreely) {
             UIImage *im = self.nBackImageView.image;
             
-            im = [self createStencilWithCollapseAlpha:YES withImage:im];
-            im = [self image:mBackImageview.image withImage:im];
-            //UIImageWriteToSavedPhotosAlbum(im, nil, nil, nil);
-            previewVC.imageP = im;
+           /* NSFileManager *fileManager = [NSFileManager defaultManager];
+            NSString *path = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+            NSString *fileName = [path stringByAppendingPathComponent:@"File1.png"];
+            NSData *data = UIImagePNGRepresentation(im);
+            [fileManager createFileAtPath:fileName contents:data attributes:nil];
+            
+            
+            */
+            im = [self imageByBlendWithWhiteBackground:im];
+          
+            
+          
+            
+           // im = [self image:mBackImageview.image withImage:im];
+           
+            previewVC.imageP = [self image:mBackImageview.image withImage:im];
         }else{
             UIImage *im  =  [self image:mBackImageview.image withImage:[self createImageFromBeizerPath]];
             previewVC.imageP = im;
@@ -330,7 +342,7 @@
     // but that isn't what I'm seeing...
     // Need better test images to see if we are losing detail by not making the bitmap larger.
     float scale = [[UIScreen mainScreen]scale];
-    CGRect imageRect = CGRectMake(0, 0, self.view.frame.size.width*scale, self.view.frame.size.height*scale);
+    CGRect imageRect = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     
     int width = imageRect.size.width;
     int height = imageRect.size.height;
@@ -360,18 +372,18 @@
             if (inCollapseAlpha )
             {
                 if ( rgbaPixel[0] == 0.0 ){
-                    rgbaPixel[0] = 255.0;
-                    rgbaPixel[1] = 255.0;       // R
-                    rgbaPixel[2] = 255.0;       // G
-                    rgbaPixel[3] = 255.0;
+                    rgbaPixel[0] = 255.0;   //a
+                    rgbaPixel[1] = 255.0;   //r
+                    rgbaPixel[2] = 255.0;   //g
+                    rgbaPixel[3] = 255.0;   //b
                     
                     
                 }else{
-                    rgbaPixel[0] = 255.0;
+                    rgbaPixel[0] = 255.0;       //a
                     
                     rgbaPixel[1] = 0.0;       // R
                     rgbaPixel[2] = 0.0;       // G
-                    rgbaPixel[3] = 0.0;
+                    rgbaPixel[3] = 0.0;         //b
                 }
             }
             // set pixels to black
@@ -389,7 +401,7 @@
     
     // in order to get the scale right for retina we need to do this:
     
-    UIImage * result = [UIImage imageWithCGImage:image1 scale:scale orientation:0];
+    UIImage * result = [UIImage imageWithCGImage:image1];
     CGImageRelease( image1 );
     
     return result;
@@ -398,7 +410,7 @@
 
 -(UIImage *)imageByTransformingImageBlue:(UIImage *)image{
     CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
-    //UIGraphicsBeginImageContext(rect.size);
+   
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextClipToMask(context, rect, image.CGImage);
@@ -411,6 +423,17 @@
     img = nil;
     
     return flippedImage;
+}
+
+-(UIImage *)imageByBlendWithWhiteBackground:(UIImage *)image
+{
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, 0.0f);
+    [[UIColor whiteColor] setFill];
+    UIRectFill(CGRectMake(0, 0, image.size.width, image.size.height));
+    [image drawInRect:CGRectMake(0, 0, image.size.width, image.size.height)];
+    UIImage *blackImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return blackImage;
 }
 
 

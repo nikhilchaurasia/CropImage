@@ -14,5 +14,7 @@
 
 
 - (IBAction)nMaskImageTapped:(id)sender;
+- (IBAction)freeMoveTapped:(id)sender;
+- (IBAction)goTapped:(id)sender;
 
 @end
